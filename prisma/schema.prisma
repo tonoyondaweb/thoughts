@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
@@ -14,4 +14,49 @@ model Example {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+// model Thought {
+//     id        String   @id @default(uuid())
+//     content   String
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
+//     authorId  String
+//     replies   Reply[]
+// }
+
+// model Reply {
+//     id        String   @id @default(uuid())
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
+//     content   String
+//     postId    String
+//     thought   Thought  @relation(fields: [postId], references: [id])
+//     parentId  String?
+//     parent    Reply?   @relation("ReplyToReply", fields: [parentId], references: [id])
+//     replies   Reply[]  @relation("ReplyToReply")
+// }
+
+model Thought {
+    id        String   @id @default(uuid())
+    authorId  String
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Reply     Reply[]
+
+    @@index([authorId])
+}
+
+model Reply {
+    id        String   @id @default(uuid())
+    authorId  String
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    though    Thought  @relation(fields: [thoughtId], references: [id])
+    thoughtId String
+    parent    Reply    @relation("ReplyToReply", fields: [replyId], references: [id])
+    replyId   String
+    Reply     Reply[]  @relation("ReplyToReply")
 }
